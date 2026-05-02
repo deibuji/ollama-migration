@@ -56,6 +56,10 @@ help:
 # Quick dev cycle: format, check, test
 dev: fmt check test
 
+# Run cargo audit (requires: cargo install cargo-audit)
+audit:
+	cargo audit
+
 # Full CI check: format-check, clippy, test
 ci: fmt-check clippy test
 
