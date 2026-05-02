@@ -44,7 +44,6 @@ doc:
 # Clean build artifacts
 clean:
     cargo clean
-    rm -rf .cargo_home
 
 # Run the CLI (debug build)
 run *ARGS:

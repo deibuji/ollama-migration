@@ -28,7 +28,7 @@ impl TryFrom<GGUFHeader> for GGUFMetadata {
 
 pub fn extract_header_info(data: &[u8]) -> Result<GGUFMetadata> {
     let header = GGUFHeader::from_bytes(data)?;
-    let mut meta: GGUFMetadata = header.try_into()?;
+    let meta: GGUFMetadata = header.try_into()?;
 
     // Attempt to parse common metadata keys from GGUF kv array
     // Full metadata parsing requires full GGUF spec implementation

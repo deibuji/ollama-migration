@@ -1,6 +1,6 @@
 use std::path::{Path, PathBuf};
 
-use crate::error::{MigrationError, Result};
+use crate::error::Result;
 use crate::platform::Platform;
 
 use super::blob::BlobRef;
@@ -60,10 +60,10 @@ impl OllamaInstallation {
 
             if path.is_dir() {
                 Self::walk_manifests(&path, manifests_root, blobs_dir, models)?;
-            } else if path.is_file() {
-                if let Some(model) = Self::parse_model(&path, manifests_root, blobs_dir) {
-                    models.push(model);
-                }
+            } else if path.is_file()
+                && let Some(model) = Self::parse_model(&path, manifests_root, blobs_dir)
+            {
+                models.push(model);
             }
         }
         Ok(())

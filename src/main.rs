@@ -1,4 +1,4 @@
-use std::path::PathBuf;
+use std::path::{Path, PathBuf};
 use std::process::ExitCode;
 
 use anyhow::{Context, Result};
@@ -57,7 +57,7 @@ fn run(cli: Cli) -> Result<()> {
     Ok(())
 }
 
-fn cmd_list(ollama_dir: &PathBuf, output: &dyn Output) -> Result<()> {
+fn cmd_list(ollama_dir: &Path, output: &dyn Output) -> Result<()> {
     let install = OllamaInstallation::discover_at(ollama_dir)
         .context("Failed to discover Ollama installation")?;
 
@@ -71,7 +71,7 @@ fn cmd_list(ollama_dir: &PathBuf, output: &dyn Output) -> Result<()> {
 }
 
 fn cmd_export(
-    ollama_dir: &PathBuf,
+    ollama_dir: &Path,
     model_names: &[String],
     output: Option<PathBuf>,
     out: &dyn Output,
@@ -88,8 +88,7 @@ fn cmd_export(
             .ok_or_else(|| anyhow::anyhow!("Model not found: {}", name))?;
 
         let dest = output
-            .as_ref()
-            .map(|p| p.clone())
+            .clone()
             .unwrap_or_else(|| PathBuf::from(format!("{}.gguf", name.replace('/', "_"))));
 
         let dest = ensure_extension(&dest, "gguf");
@@ -116,7 +115,7 @@ fn cmd_export(
     Ok(())
 }
 
-fn cmd_export_all(ollama_dir: &PathBuf, output_dir: &PathBuf, pattern: Option<&str>) -> Result<()> {
+fn cmd_export_all(ollama_dir: &Path, output_dir: &Path, pattern: Option<&str>) -> Result<()> {
     let install = OllamaInstallation::discover_at(ollama_dir)
         .context("Failed to discover Ollama installation")?;
 
@@ -152,7 +151,7 @@ fn cmd_export_all(ollama_dir: &PathBuf, output_dir: &PathBuf, pattern: Option<&s
     Ok(())
 }
 
-fn cmd_info(ollama_dir: &PathBuf, target: &str, output: &dyn Output) -> Result<()> {
+fn cmd_info(ollama_dir: &Path, target: &str, output: &dyn Output) -> Result<()> {
     // Check if target is a file path
     if std::path::Path::new(target).exists() {
         let header =
@@ -172,7 +171,7 @@ fn cmd_info(ollama_dir: &PathBuf, target: &str, output: &dyn Output) -> Result<(
     Ok(())
 }
 
-fn cmd_verify(path: &PathBuf) -> Result<()> {
+fn cmd_verify(path: &Path) -> Result<()> {
     let result = validate_gguf(path).context("Failed to validate GGUF file")?;
 
     if result.is_valid() {

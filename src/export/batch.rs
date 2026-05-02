@@ -1,4 +1,3 @@
-use std::collections::HashMap;
 use std::path::Path;
 use std::sync::Arc;
 use std::time::{Duration, Instant};
@@ -6,7 +5,7 @@ use std::time::{Duration, Instant};
 use crate::ollama::OllamaModel;
 use crate::paths::sanitize_model_name;
 
-use super::job::{JobStatus, MigrationJob};
+use super::job::MigrationJob;
 use super::single::{ProgressCallback, export_model};
 
 #[derive(Debug, Clone)]
@@ -44,7 +43,7 @@ impl ExportSummary {
 pub fn export_all(
     models: &[OllamaModel],
     output_dir: &Path,
-    progress_callback: Option<ProgressCallback>,
+    _progress_callback: Option<ProgressCallback>,
 ) -> ExportSummary {
     let start = Instant::now();
     let mut jobs = Vec::new();
