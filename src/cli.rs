@@ -69,8 +69,8 @@ pub fn parse() -> Cli {
 
 #[cfg(test)]
 mod tests {
-    use clap::CommandFactory;
     use super::Cli;
+    use clap::CommandFactory;
 
     #[test]
     fn test_cli_parser() {

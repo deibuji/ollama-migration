@@ -4,12 +4,12 @@ use std::process::ExitCode;
 use anyhow::{Context, Result};
 use clap::Parser;
 use ollama_migrator::cli::{Cli, Commands, OutputFormat};
+use ollama_migrator::export::{MigrationJob, export_all, export_model};
 use ollama_migrator::gguf::validate_gguf;
 use ollama_migrator::ollama::OllamaInstallation;
 use ollama_migrator::output::{JsonOutput, Output, TableOutput};
 use ollama_migrator::paths::ensure_extension;
 use ollama_migrator::platform::Platform;
-use ollama_migrator::export::{export_all, export_model, MigrationJob};
 
 fn main() -> ExitCode {
     let cli = Cli::parse();
@@ -37,7 +37,10 @@ fn run(cli: Cli) -> Result<()> {
         Commands::List => {
             cmd_list(&ollama_dir, output.as_ref())?;
         }
-        Commands::Export { models, output: out } => {
+        Commands::Export {
+            models,
+            output: out,
+        } => {
             cmd_export(&ollama_dir, &models, out, output.as_ref())?;
         }
         Commands::ExportAll { output, pattern } => {
@@ -69,7 +72,7 @@ fn cmd_list(ollama_dir: &PathBuf, output: &dyn Output) -> Result<()> {
 
 fn cmd_export(
     ollama_dir: &PathBuf,
-    model_names: &[ String],
+    model_names: &[String],
     output: Option<PathBuf>,
     out: &dyn Output,
 ) -> Result<()> {
@@ -84,9 +87,10 @@ fn cmd_export(
             .find_model(name)
             .ok_or_else(|| anyhow::anyhow!("Model not found: {}", name))?;
 
-        let dest = output.as_ref().map(|p| p.clone()).unwrap_or_else(|| {
-            PathBuf::from(format!("{}.gguf", name.replace('/', "_")))
-        });
+        let dest = output
+            .as_ref()
+            .map(|p| p.clone())
+            .unwrap_or_else(|| PathBuf::from(format!("{}.gguf", name.replace('/', "_"))));
 
         let dest = ensure_extension(&dest, "gguf");
         let job = MigrationJob::new(model.clone(), dest.clone());
@@ -112,11 +116,7 @@ fn cmd_export(
     Ok(())
 }
 
-fn cmd_export_all(
-    ollama_dir: &PathBuf,
-    output_dir: &PathBuf,
-    pattern: Option<&str>,
-) -> Result<()> {
+fn cmd_export_all(ollama_dir: &PathBuf, output_dir: &PathBuf, pattern: Option<&str>) -> Result<()> {
     let install = OllamaInstallation::discover_at(ollama_dir)
         .context("Failed to discover Ollama installation")?;
 
@@ -155,7 +155,8 @@ fn cmd_export_all(
 fn cmd_info(ollama_dir: &PathBuf, target: &str, output: &dyn Output) -> Result<()> {
     // Check if target is a file path
     if std::path::Path::new(target).exists() {
-        let header = ollama_migrator::gguf::GGUFHeader::from_file(&std::path::PathBuf::from(target))?;
+        let header =
+            ollama_migrator::gguf::GGUFHeader::from_file(&std::path::PathBuf::from(target))?;
         output.write_gguf_info(&header.try_into()?);
         return Ok(());
     }

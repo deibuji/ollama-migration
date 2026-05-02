@@ -6,4 +6,4 @@ pub mod validator;
 
 pub use header::GGUFHeader;
 pub use metadata::GGUFMetadata;
-pub use validator::{validate_gguf, ValidationResult};
+pub use validator::{ValidationResult, validate_gguf};

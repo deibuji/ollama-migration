@@ -7,7 +7,7 @@ use crate::ollama::OllamaModel;
 use crate::paths::sanitize_model_name;
 
 use super::job::{JobStatus, MigrationJob};
-use super::single::{export_model, ProgressCallback};
+use super::single::{ProgressCallback, export_model};
 
 #[derive(Debug, Clone)]
 pub struct ExportSummary {
@@ -36,11 +36,7 @@ impl ExportSummary {
             return 100.0;
         }
 
-        let total_progress: f64 = self
-            .jobs
-            .iter()
-            .map(|j| j.progress())
-            .sum();
+        let total_progress: f64 = self.jobs.iter().map(|j| j.progress()).sum();
         total_progress / self.jobs.len() as f64
     }
 }

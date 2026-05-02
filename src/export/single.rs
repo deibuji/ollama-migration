@@ -13,11 +13,7 @@ use super::job::MigrationJob;
 
 pub type ProgressCallback = Box<dyn Fn(u64, u64) + Send>;
 
-pub fn export_model(
-    model: &OllamaModel,
-    destination: &Path,
-    job: Arc<MigrationJob>,
-) -> Result<()> {
+pub fn export_model(model: &OllamaModel, destination: &Path, job: Arc<MigrationJob>) -> Result<()> {
     export_model_with_progress(model, destination, job, None)
 }
 
@@ -29,7 +25,9 @@ pub fn export_model_with_progress(
 ) -> Result<()> {
     // Validate source exists
     if !model.model_blob.path.exists() {
-        return Err(MigrationError::BlobNotFound(model.model_blob.digest.clone()));
+        return Err(MigrationError::BlobNotFound(
+            model.model_blob.digest.clone(),
+        ));
     }
 
     // Create destination directory
@@ -43,7 +41,8 @@ pub fn export_model_with_progress(
     job.start();
 
     // Use memory mapping for efficient large file handling
-    let result = copy_with_mmap(&model.model_blob.path,
+    let result = copy_with_mmap(
+        &model.model_blob.path,
         destination,
         &job,
         progress_callback.as_ref(),
@@ -88,10 +87,15 @@ fn copy_with_mmap(
 
         for chunk in mmap.chunks(CHUNK_SIZE) {
             dest_file.write_all(chunk)?;
-            job.progress_bytes.fetch_add(chunk.len() as u64, std::sync::atomic::Ordering::Relaxed);
+            job.progress_bytes
+                .fetch_add(chunk.len() as u64, std::sync::atomic::Ordering::Relaxed);
 
             if let Some(cb) = progress_cb {
-                cb(job.progress_bytes.load(std::sync::atomic::Ordering::Relaxed), source_len);
+                cb(
+                    job.progress_bytes
+                        .load(std::sync::atomic::Ordering::Relaxed),
+                    source_len,
+                );
             }
         }
 
@@ -99,7 +103,8 @@ fn copy_with_mmap(
     } else {
         // Small files: use std::fs::copy
         std::fs::copy(source, destination)?;
-        job.progress_bytes.store(source_len, std::sync::atomic::Ordering::Relaxed);
+        job.progress_bytes
+            .store(source_len, std::sync::atomic::Ordering::Relaxed);
     }
 
     // Verify file size matches

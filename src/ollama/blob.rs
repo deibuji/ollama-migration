@@ -20,9 +20,9 @@ impl BlobRef {
 
         let algorithm = parts[0].to_string();
         let hash = parts[1].to_string();
-        
+
         let path = blobs_dir.join(format!("{}-{}", algorithm, hash));
-        
+
         let size = if path.exists() {
             path.metadata()?.len()
         } else {

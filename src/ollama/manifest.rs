@@ -40,11 +40,15 @@ impl Manifest {
     }
 
     pub fn get_model_layer(&self) -> Option<&Layer> {
-        self.layers.iter().find(|l| l.media_type == Self::MODEL_MEDIA_TYPE)
+        self.layers
+            .iter()
+            .find(|l| l.media_type == Self::MODEL_MEDIA_TYPE)
     }
 
     pub fn get_config_layer(&self) -> Option<&Layer> {
-        self.layers.iter().find(|l| l.media_type == Self::CONFIG_MEDIA_TYPE)
+        self.layers
+            .iter()
+            .find(|l| l.media_type == Self::CONFIG_MEDIA_TYPE)
     }
 }
 

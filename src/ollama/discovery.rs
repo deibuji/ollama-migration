@@ -30,7 +30,7 @@ impl OllamaInstallation {
     pub fn discover_at(models_dir: &Path) -> Result<Self> {
         let manifests_dir = models_dir.join("manifests");
         let blobs_dir = models_dir.join("blobs");
-        
+
         let mut models = Vec::new();
 
         if !manifests_dir.exists() {
@@ -77,7 +77,7 @@ impl OllamaInstallation {
         let manifest = Manifest::from_file(manifest_path).ok()?;
 
         let name = Self::build_model_name(manifest_path, manifests_dir);
-        
+
         let model_layer = manifest.get_model_layer()?;
         let model_blob = BlobRef::from_digest(&model_layer.digest, blobs_dir).ok()?;
 
@@ -85,8 +85,7 @@ impl OllamaInstallation {
             .get_config_layer()
             .and_then(|l| BlobRef::from_digest(&l.digest, blobs_dir).ok());
 
-        let total_size = model_layer.size
-            + config_blob.as_ref().map(|b| b.size).unwrap_or(0);
+        let total_size = model_layer.size + config_blob.as_ref().map(|b| b.size).unwrap_or(0);
 
         Some(OllamaModel {
             name,
@@ -98,15 +97,21 @@ impl OllamaInstallation {
     }
 
     fn build_model_name(manifest_path: &Path, manifests_dir: &Path) -> String {
-        let relative = manifest_path.strip_prefix(manifests_dir).unwrap_or(manifest_path);
+        let relative = manifest_path
+            .strip_prefix(manifests_dir)
+            .unwrap_or(manifest_path);
         let components: Vec<_> = relative
             .components()
             .map(|c| c.as_os_str().to_string_lossy())
             .filter(|s| !s.is_empty())
             .collect();
-        
+
         if components.len() >= 3 {
-            format!("{}/{}", components[components.len() - 2], components.last().unwrap())
+            format!(
+                "{}/{}",
+                components[components.len() - 2],
+                components.last().unwrap()
+            )
         } else if components.len() == 2 {
             format!("{}/{}", components[0], components[1])
         } else {
@@ -126,9 +131,13 @@ mod tests {
 
     fn setup_mock_ollama(temp: &std::path::Path) -> PathBuf {
         let models_dir = temp.join(".ollama").join("models");
-        let manifests = models_dir.join("manifests").join("registry.ollama.ai").join("library").join("llama3.2");
+        let manifests = models_dir
+            .join("manifests")
+            .join("registry.ollama.ai")
+            .join("library")
+            .join("llama3.2");
         let blobs = models_dir.join("blobs");
-        
+
         std::fs::create_dir_all(&manifests).unwrap();
         std::fs::create_dir_all(&blobs).unwrap();
 
@@ -161,10 +170,10 @@ mod tests {
         let temp = std::env::temp_dir().join("ollama_test");
         let _ = std::fs::remove_dir_all(&temp);
         let models_dir = setup_mock_ollama(&temp);
-        
+
         let install = OllamaInstallation::discover_at(&models_dir).unwrap();
         assert_eq!(install.models.len(), 1);
-        
+
         let _ = std::fs::remove_dir_all(&temp);
     }
 
@@ -173,10 +182,10 @@ mod tests {
         let temp = std::env::temp_dir().join("ollama_test2");
         let _ = std::fs::remove_dir_all(&temp);
         let models_dir = setup_mock_ollama(&temp);
-        
+
         let install = OllamaInstallation::discover_at(&models_dir).unwrap();
         assert!(install.find_model("llama3.2/latest").is_some());
-        
+
         let _ = std::fs::remove_dir_all(&temp);
     }
 }

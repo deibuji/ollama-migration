@@ -58,10 +58,14 @@ mod tests {
 
     #[test]
     fn test_ollama_default_dir_env_override() {
-        unsafe { std::env::set_var("OLLAMA_MODELS", "/custom/path"); }
+        unsafe {
+            std::env::set_var("OLLAMA_MODELS", "/custom/path");
+        }
         let p = Platform::current();
         let dir = p.ollama_default_dir().unwrap();
         assert_eq!(dir, PathBuf::from("/custom/path"));
-        unsafe { std::env::remove_var("OLLAMA_MODELS"); }
+        unsafe {
+            std::env::remove_var("OLLAMA_MODELS");
+        }
     }
 }

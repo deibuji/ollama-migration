@@ -1,13 +1,13 @@
 use serde::Serialize;
 
-use crate::ollama::OllamaModel;
 use crate::gguf::GGUFMetadata;
+use crate::ollama::OllamaModel;
 
 /// JSON output formatter
 pub struct JsonOutput;
 
 impl JsonOutput {
-    pub fn print_model_list(&self, models: &[ OllamaModel]) {
+    pub fn print_model_list(&self, models: &[OllamaModel]) {
         let serializable: Vec<SerializableModel> = models.iter().map(Into::into).collect();
         println!("{}", serde_json::to_string_pretty(&serializable).unwrap());
     }

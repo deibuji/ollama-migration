@@ -4,7 +4,13 @@ use crate::error::{MigrationError, Result};
 
 pub fn sanitize_model_name(name: &str) -> String {
     name.chars()
-        .map(|c| if c.is_alphanumeric() || c == '-' || c == '_' { c } else { '_' })
+        .map(|c| {
+            if c.is_alphanumeric() || c == '-' || c == '_' {
+                c
+            } else {
+                '_'
+            }
+        })
         .collect()
 }
 
@@ -39,7 +45,9 @@ pub fn get_parent_or_create(path: &Path) -> Result<PathBuf> {
         std::fs::create_dir_all(parent)?;
         Ok(parent.to_path_buf())
     } else {
-        Err(MigrationError::Platform("Path has no parent directory".into()))
+        Err(MigrationError::Platform(
+            "Path has no parent directory".into(),
+        ))
     }
 }
 
@@ -55,7 +63,13 @@ mod tests {
 
     #[test]
     fn test_ensure_extension() {
-        assert_eq!(ensure_extension(Path::new("input"), "gguf"), PathBuf::from("input.gguf"));
-        assert_eq!(ensure_extension(Path::new("input.gguf"), "gguf"), PathBuf::from("input.gguf"));
+        assert_eq!(
+            ensure_extension(Path::new("input"), "gguf"),
+            PathBuf::from("input.gguf")
+        );
+        assert_eq!(
+            ensure_extension(Path::new("input.gguf"), "gguf"),
+            PathBuf::from("input.gguf")
+        );
     }
 }

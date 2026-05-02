@@ -60,8 +60,8 @@ pub fn validate_gguf(path: &Path) -> Result<ValidationResult> {
 
 #[cfg(test)]
 mod tests {
-    use super::*;
     use super::super::header::GGUF_MAGIC;
+    use super::*;
     use std::io::Write;
 
     #[test]
